@@ -1,0 +1,53 @@
+---
+- name: Deploy Linux Monitoring App with Grafana
+  hosts: local
+  become: yes
+
+  tasks:
+    - name: Update APT packages
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Docker Compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Clone project repo (if not exists)
+      git:
+        repo: https://github.com/yarinbatat/linux-monitoring-dashboard.git
+        dest: /home/yarin/linux-monitoring-dashboard
+        clone: yes
+        update: yes
+
+    - name: Create prometheus directory
+      file:
+        path: /home/yarin/linux-monitoring-dashboard/prometheus
+        state: directory
+
+    - name: Copy prometheus config
+      copy:
+        content: |
+          global:
+            scrape_interval: 15s
+            evaluation_interval: 15s
+
+          scrape_configs:
+            - job_name: 'linux-monitoring'
+              static_configs:
+                - targets: ['web:5000']
+
+            - job_name: 'prometheus'
+              static_configs:
+                - targets: ['localhost:9090']
+        dest: /home/yarin/linux-monitoring-dashboard/prometheus/prometheus.yml
+
+    - name: Run Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /home/yarin/linux-monitoring-dashboard
