@@ -121,3 +121,24 @@ def dashboard():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+from flask import Flask, jsonify, render_template  # יש לוודא שהמודול render_template מיובא
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return render_template('index.html')  # וודא שאתה Return את קובץ ה-HTML שלך
+
+@app.route('/api/system-stats', methods=['GET'])
+def system_stats():
+    # כאן תשים לוגיקה לקבלת הנתונים
+    data = {
+        'cpu': 30,      # זה ערך דוגמה, תחליף עם ערך אמיתי
+        'memory': 16,   # זה ערך דוגמה, תחליף עם ערך אמיתי
+        'disk': 250     # זה ערך דוגמה, תחליף עם ערך אמיתי
+    }
+    return jsonify(data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
